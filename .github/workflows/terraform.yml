@@ -1,0 +1,44 @@
+name: Terraform
+
+on:
+
+  push:
+
+  workflow_dispatch:
+
+jobs:
+
+  terraform:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: Validate & plan
+
+        run: |
+
+          for dir in $(find . -name providers.tf -not -path "*/modules/*" -exec dirname {} \;); do
+
+            echo "=============================="
+
+            echo "  $dir"
+
+            echo "=============================="
+
+            cd "$dir"
+
+            terraform init -input=false
+
+            terraform validate
+
+            terraform plan -no-color -input=false
+
+            cd "$GITHUB_WORKSPACE"
+
+          done
+ 
